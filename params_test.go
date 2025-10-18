@@ -10,17 +10,18 @@ import (
 	"testing"
 )
 
-func TestRouter(t *testing.T) {
+func TestParams(t *testing.T) {
 	router := httprouter.New()
-	router.GET("/", func(writer http.ResponseWriter, request *http.Request, _ httprouter.Params) {
-		fmt.Fprint(writer, "Hello world")
+	router.GET("/products/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+		text := "Product " + params.ByName("id")
+		fmt.Fprint(writer, text)
 	})
 
-	request := httptest.NewRequest("GET", "http://localhost:8080/", nil)
+	request := httptest.NewRequest("GET", "http://localhost:8080/products/1", nil)
 	recorder := httptest.NewRecorder()
 
 	router.ServeHTTP(recorder, request)
 	response := recorder.Result()
 	body, _ := io.ReadAll(response.Body)
-	assert.Equal(t, "Hello world", string(body))
+	assert.Equal(t, "Product 1", string(body))
 }
